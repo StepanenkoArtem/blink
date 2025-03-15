@@ -1,45 +1,48 @@
 #include <Arduino.h>
+// #include <avr/io.h>
 
-void setPortAMode(int);
-void displayNumber(int);
+void setPortMode(int, int);
+void displayNumber(const int digit[8]);
 
-int const ONE[8] = {LOW, LOW, LOW, LOW, HIGH, HIGH, LOW, LOW};
-// #define TWO {A, B, G, E, D}
-// #define THREE {A, D, G, C, D}
-// #define FOUR {F, G, B, C, D}
-// #define FIVE {A, F, G, C, D}
-// #define SIX {A, F, G, C, E, D}
-// #define SEVEN {A, B, C}
-// #define EIGHT {A, B, C, D, E, F, G, D}
-// #define NINE {A, B, C, D, F, G, D}
-// #define ZERO {}
+#define ZERO {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, LOW}
+#define ONE {LOW, HIGH, HIGH, LOW, LOW, LOW, LOW}
+#define TWO {HIGH, HIGH, LOW, HIGH, HIGH, LOW, HIGH}
+#define THREE {HIGH, HIGH, HIGH, HIGH, LOW, LOW, HIGH}
+#define FOUR {LOW, HIGH, HIGH, LOW, LOW, HIGH, HIGH}
+#define FIVE {HIGH, LOW, HIGH, HIGH, LOW, HIGH, HIGH}
+#define SIX {HIGH, LOW, HIGH, HIGH, HIGH, HIGH, HIGH}
+#define SEVEN {HIGH, HIGH, HIGH, LOW, LOW, LOW, LOW}
+#define EIGHT {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH}
+#define NINE {HIGH, HIGH, HIGH, HIGH, LOW, HIGH, HIGH}
 
-void setup() { setPortAMode(OUTPUT); }
+const int DIGITS[10][8] = {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE};
+
+const int PORT_D[] = {PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7};
+
+void setup() { setPortMode(PORTD, OUTPUT); }
 
 void loop() {
-  int number = 1;
+  int number = 0;
 
-  while (number < 2) {
-    displayNumber(number);
-    delay(10000);
-    // number++;
+  while (number < 10) {
+    displayNumber(DIGITS[number]);
+    delay(1000);
+    number++;
+    if (number == 10) {
+      number = 0;
+    }
+  };
+}
+
+void setPortMode(int port, int mode) {
+
+  for (int pin = 0; pin <= 7; pin++) {
+    pinMode(PORT_D[pin], mode);
   }
 }
 
-// Other functions
-
-void setPortAMode(int mode) {
-  // int portAPins[] = {40, 39, 38, 37, 36, 35, 34, 33};
-
-  for (int pin = 40; pin <= 33; pin--) {
-    pinMode(pin, mode);
-  }
-};
-
-void displayNumber(int number) {
-  if (number == 1) {
-    for (int pin = 0; pin <= 7; pin++) {
-      digitalWrite((pin + 33), ONE[pin]);
-    }
+void displayNumber(const int digit[8]) {
+  for (int pin = 0; pin <= 7; pin++) {
+    digitalWrite(PORT_D[pin], !digit[pin]);
   }
 };
